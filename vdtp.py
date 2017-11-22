@@ -47,6 +47,9 @@ def fragmentData(serialData,reliable):
 
     return retBuf
 
+def ackthread(fragDataList,sk):
+    return 0
+
 def send(data,addr,reliable=0):
     serialData = pickle.dumps(data)
     print 'Original Data Length:',len(serialData)
@@ -57,6 +60,11 @@ def send(data,addr,reliable=0):
     # Attach header to individual messages
     # Send individual messages
     sk = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+
+    # Create ackThread for reliability
+    #if reliable == 1:
+        #ackThread(fragDataList,sk)
+
     for item in fragDataList:
         print 'Item Length:',len(item)
         sk.sendto(item,addr)
