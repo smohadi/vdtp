@@ -3,6 +3,7 @@ import socket
 import pickle
 from random import *
 import struct
+import time
 
 # Required functions
 # Send_packet
@@ -47,7 +48,12 @@ def fragmentData(serialData,reliable):
 
     return retBuf
 
-def ackthread(fragDataList,sk):
+def ackthread(ack,addr,sk):
+    ackData = pickle.dumps(ack)
+    ackList = fragmentData(ackData,0)
+    for item in ackList:
+        sk.sendto(item,addr)
+    ack = []
     return 0
 
 def send(data,addr,reliable=0):
@@ -65,7 +71,7 @@ def send(data,addr,reliable=0):
     #if reliable == 1:
         #ackThread(fragDataList,sk)
 
-    for item in fragDataList:
+    for item in fragDataList: 
         print 'Item Length:',len(item)
         sk.sendto(item,addr)
 
@@ -88,13 +94,16 @@ def recv_sock(addr):
     ackSk = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     sk.bind(addr)
     output = ''
-    flowIdList = {}
+    flowIdList = {}   
+    close_time=time.time()+0.2 ###for 200 msec delay 
+    ack = []
 
     while True:
         data,addr = sk.recvfrom(1500)
         length = len(data)
         #print length
         flowId,seq,reliable,lastFrag = extractHeader(data[0:2])
+        ack.append(seq)
 
         # In order delivery
         if flowIdList.has_key((addr,flowId)):
@@ -113,5 +122,8 @@ def recv_sock(addr):
             returnBuf = pickle.loads(output)
             output = ''
             return returnBuf,addr
+        if time.time()>close_time
+            ackthread(ack,addr,sk)
+
 
 
