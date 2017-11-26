@@ -55,7 +55,10 @@ def ackthread(ack,addr,sk):
     ack = []
     return 0
 
-def retransmission()
+def retransmission(ackRcv,addr,sk)
+    for i in range(len(ackRcv)):
+        if ackRcv[i] in seqSent:
+            seqSent.remove(ackRcv[i])
     
     return 0
 
@@ -112,8 +115,8 @@ def recv_sock(addr):
         flowId,seq,reliable,lastFrag = extractHeader(data[0:2])
         ack.append(seq)
         
-        if reliable==1
-           if flowIdList.has_key((addr,flowId)):
+        if reliable==1:
+            if flowIdList.has_key((addr,flowId)):
                 flowIdList[(addr,flowId)][seq] = data[2:length]
             else:
                 flowIdList[(addr,flowId)] = {}
@@ -127,6 +130,8 @@ def recv_sock(addr):
                         del flowIdList[(addr,flowId)]
                         break
                 returnBuf = pickle.loads(output) 
+                
+        retransmission(returnBuf,addr,sk)
             
         else
         # In order delivery
@@ -146,7 +151,7 @@ def recv_sock(addr):
                 returnBuf = pickle.loads(output)
                 output = ''
                 return returnBuf,addr
-            if time.time()>close_time
+            if time.time()>close_time:
                 ackthread(ack,addr,sk)
 
 
